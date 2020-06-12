@@ -28,51 +28,34 @@ viewSchema.statics.analytics = async function (
 	const year = $year * 1;
 	let groupClause = {};
 	let addField = {};
+	let groupClause2 = {};
 	switch ($by) {
 		case "week":
 			groupClause = {
-				$group: {
-					_id: { $week: "$ViewDate" },
-					views: { $sum: 1 },
-					users: { $addToSet: { user: "$userId", product: "$ProductId" } },
-				},
+				week: { $week: "$ViewDate" },
 			};
-			addField = {
-				$addFields: {
-					[$by]: "$_id",
-				},
+			groupClause2 = {
+				[$by]: "$_id.week",
 			};
 			break;
 		case "day":
 			groupClause = {
-				$group: {
-					_id: {
-						day: { $dayOfMonth: "$ViewDate" },
-						month: { $month: "$ViewDate" },
-						year: { $year: "$ViewDate" },
-					},
-					views: { $sum: 1 },
-					users: { $addToSet: { user: "$userId", product: "$ProductId" } },
-				},
+				day: { $dayOfMonth: "$ViewDate" },
+				month: { $month: "$ViewDate" },
+				year: { $year: "$ViewDate" },
 			};
-			addField = {
-				$addFields: {
-					[$by]: "$_id",
-				},
+			groupClause2 = {
+				day: "$_id.day",
+				month: "$_id.month",
+				year: "$_id.year",
 			};
 			break;
 		default:
 			groupClause = {
-				$group: {
-					_id: { day: { $month: "$ViewDate" } },
-					views: { $sum: 1 },
-					users: { $addToSet: { user: "$userId", product: "$ProductId" } },
-				},
+				month: { $month: "$ViewDate" },
 			};
-			addField = {
-				$addFields: {
-					[$by]: "$_id",
-				},
+			groupClause2 = {
+				month: "$_id.month",
 			};
 			break;
 	}
@@ -92,8 +75,29 @@ viewSchema.statics.analytics = async function (
 				],
 			},
 		},
-		groupClause,
-		addField,
+		{
+			$group: {
+				_id: {
+					...groupClause,
+					users: { user: "$userId", product: "$ProductId" },
+				},
+				views: { $sum: 1 },
+			},
+		},
+		{
+			$group: {
+				_id: {
+					...groupClause2,
+				},
+				totalViews: { $sum: "$views" },
+				distinctViews: { $sum: 1 },
+			},
+		},
+		{
+			$addFields: {
+				info: "$_id",
+			},
+		},
 		{
 			$project: {
 				_id: 0,
