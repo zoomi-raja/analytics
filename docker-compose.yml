@@ -1,0 +1,23 @@
+version: "2"
+services:
+  assignment:
+    image: assignment
+    container_name: assignment
+    build: .
+    ports:
+      - 80:8000
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - NODE_ENV=development
+  mongo:
+    image: mongo:3-xenial
+    container_name: mongo
+    volumes:
+      - db-volume:/data/db
+      - db-config:/data/configdb
+    ports:
+      - "27017:27017"
+volumes:
+  db-volume:
+  db-config:

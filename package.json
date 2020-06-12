@@ -1,0 +1,17 @@
+{
+	"name": "assignment",
+	"version": "1.0.0",
+	"description": "analytics for particular product",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "zamurd",
+	"license": "ISC",
+	"devDependencies": {
+		"nodemon": "^2.0.1"
+	},
+	"dependencies": {
+		"mongoose": "^5.9.18"
+	}
+}
